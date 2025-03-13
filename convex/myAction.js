@@ -21,7 +21,7 @@ export const ingest = action({
       args.splitText, // Text data
       metadata,       // Metadata
       new GoogleGenerativeAIEmbeddings({
-        apiKey: "AIzaSyAWWJhjVcUl1rMOlq8clLSCf_AYd3ROutk", // Replace with a secure method to handle API keys
+        apiKey: "", // Replace with a secure method to handle API keys
         model: "text-embedding-004",
         taskType: TaskType.RETRIEVAL_DOCUMENT,
         title: "Document title",
