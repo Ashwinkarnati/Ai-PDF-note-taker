@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-const pdfUrl =
-  "https://brave-skunk-163.convex.cloud/api/storage/1ca3a54c-eb57-4843-9128-bfaada94551d";
 export async function GET(req) {
+  const reqUrl = req.url;
+  const {searchParams} = new URL(reqUrl);
+  const pdfUrl = searchParams.get('pdfUrl');
   //1.Load the PDF
   const response = await fetch(pdfUrl);
   const data = await response.blob();

@@ -12,20 +12,23 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Loader2Icon } from "lucide-react";
 import uuid4 from "uuid4";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+
 const UploadPdfDialog = ({ children }) => {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
   const AddFileEntry = useMutation(api.fileStorage.AddFileEntryToDb);
   const getFileUrl = useMutation(api.fileStorage.getFileUrl);
+  const embeddDocument = useAction(api.myAction.ingest);
   const {user} = useUser();
   const [fileName,setFileName]= useState();
   const [file, setFile] = useState();
   const [loading, setLoading] = useState(false);
+  const [open,setOpen] = useState(false);
   const OnFileSelect = (event) => {
     setFile(event.target.files[0]);
   };
@@ -51,13 +54,20 @@ const UploadPdfDialog = ({ children }) => {
         createdBy:user?.primaryEmailAddress?.emailAddress
     })
     //API Call to Fetch PDF Process Data
-    const apiresp = await axios.get('/api/pdf-loader');
-    console.log(apiresp.data.result)
+    const apiresp = await axios.get('/api/pdf-loader?pdfUrl='+fileUrl);
+    console.log(apiresp.data.result);
+    await embeddDocument({
+      splitText:apiresp.data.result,
+      fileId:fileId
+    });
     setLoading(false);
+    setOpen(false);
   };
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open}>
+      <DialogTrigger asChild>
+        <Button onClick={()=>setOpen(true)}>+ Upload PDF File</Button>
+      </DialogTrigger>
       <DialogContent className="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-gray-800">
@@ -104,6 +114,7 @@ const UploadPdfDialog = ({ children }) => {
           </DialogClose>
           <Button
             onClick={OnUpload}
+            disabled = {loading}
             className="bg-green-600 text-white hover:text-black cursor-pointer hover:bg-white w-[25%]"
           >
             {loading ? <Loader2Icon className="animate-spin" /> : "Upload"}
