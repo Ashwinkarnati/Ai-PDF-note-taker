@@ -17,6 +17,7 @@ import { api } from "@/convex/_generated/api";
 import { Loader2Icon } from "lucide-react";
 import uuid4 from "uuid4";
 import { useUser } from "@clerk/nextjs";
+import axios from "axios";
 const UploadPdfDialog = ({ children }) => {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
   const AddFileEntry = useMutation(api.fileStorage.AddFileEntryToDb);
@@ -49,7 +50,9 @@ const UploadPdfDialog = ({ children }) => {
         fileUrl:fileUrl,
         createdBy:user?.primaryEmailAddress?.emailAddress
     })
-    console.log(resp)
+    //API Call to Fetch PDF Process Data
+    const apiresp = await axios.get('/api/pdf-loader');
+    console.log(apiresp.data.result)
     setLoading(false);
   };
   return (
